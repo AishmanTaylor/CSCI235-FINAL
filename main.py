@@ -41,20 +41,14 @@ robot = QRobot.SensorMotor(ev3)
 send_message("knn 3 Qlearning")
 
 LABEL_CLEAR = 0
-LABEL_TRASH = 1
-LABEL_DUMP = 2
-LABEL_OBJECT = 3
-LABEL_PERSON = 4
-LABEL_OBSTACLE = 5
+LABEL_OBJECT = 1
+LABEL_PERSON = 2
+LABEL_OBSTACLE = 3
 
 def find_state(bot):
     distance = bot.sonar.distance()
     msg = send_message("classify")
-    if msg == "Label_Trash":
-        return LABEL_TRASH
-    elif msg == "Label_Dump":
-        return LABEL_DUMP
-    elif msg == "Label_Object":
+    if msg == "Label_Object":
         return LABEL_OBJECT
     elif msg == "Label_Person":
         return LABEL_PERSON
@@ -70,11 +64,7 @@ def find_state(bot):
 
 
 def reward(bot, state, action):
-    if state == LABEL_TRASH:
-        return 3
-    elif state == LABEL_DUMP:
-        return 5
-    elif state == LABEL_OBJECT:
+    if state == LABEL_OBJECT:
         return 10
     elif state == LABEL_CLEAR:
         return 15
