@@ -3,6 +3,7 @@ from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
 from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 import random
+import pickle
 
 class QParameters:
     def __init__(self):
@@ -23,6 +24,13 @@ def run_q(robot, params):
     loops = 0
     total_reward = 0
     action = 0
+    
+    try:
+        with open('q_table.pkl', 'rb') as f:
+            qs = pickle.load(f)
+    except OSError([FileNotFoundError]):
+        pass
+
     while params.max_steps is None or loops < params.max_steps:
         params.actions[action](robot)
         wait(params.pause_ms)
@@ -32,6 +40,9 @@ def run_q(robot, params):
         action = qs.sense_act_learn(state, reward)
         robot.show(state, action, reward, total_reward)
         loops += 1
+
+    with open('q_table.pkl', 'wb') as f:
+        pickle.dump(qs, f)
 
     robot.stop_all()
     while True:

@@ -13,6 +13,7 @@ class SensorMotor:
         self.right_sonar = pybricks.nxtdevices.UltrasonicSensor(Port.S3)
         self.light = ColorSensor(Port.S2)
         self.loops = 0
+        self.clawclosed = False
 
     def stop_all(self):
         self.left.run(0)
@@ -57,8 +58,10 @@ def grab(robot):
     distance_turned = robot.claw.angle()
     if 0 <= distance_turned <= 90 or robot.light.color() != Color.BLACK:
         robot.claw.run(SPEED)
+        robot.clawclosed = True
 
 def let_go(robot):
     distance_turned = robot.claw.angle()
     if 0 >= distance_turned >= 90 or robot.light.color() != Color.BLACK:
         robot.claw.run(-SPEED)
+        robot.clawclosed = False

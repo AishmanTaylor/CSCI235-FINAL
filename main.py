@@ -21,7 +21,7 @@ ev3 = EV3Brick()
 # Write your program here.
 ev3.speaker.beep()
 
-SERVER_IP = "172.17.2.127"
+SERVER_IP = "172.17.4.118"
 PORT = 8888
 
 def send_message(message):
@@ -47,7 +47,7 @@ LABEL_OBSTACLE = 3
 TOO_FAR_RIGHT = 4
 TOO_FAR_LEFT = 5
 
-def find_state(bot):
+def find_state(robot):
     distance_left = robot.left_sonar.distance()
     distance_right = robot.right_sonar.distance()
     msg = send_message("classify")
@@ -57,7 +57,7 @@ def find_state(bot):
         return TOO_FAR_RIGHT
     elif (distance_left < distance_right):
         return TOO_FAR_LEFT
-    elif msg == "Label_Person":
+    elif (msg == "Label_Person") and (robot.clawclosed):
         return LABEL_PERSON
     elif msg == "Label_Clear":
         return LABEL_CLEAR
@@ -70,12 +70,12 @@ def find_state(bot):
     wait(100)
 
 
-def reward(bot, state, action):
+def reward(robot, state, action):
     if state == LABEL_OBJECT:
         return 10
     elif state == LABEL_PERSON:
         return 15
-    elif state == LABEL_OBSTACLE:
+    elif (state == LABEL_OBSTACLE) or (state == TOO_FAR_LEFT) or (state == TOO_FAR_RIGHT):
         return -5
     elif state == LABEL_CLEAR:
         return 1
@@ -86,8 +86,8 @@ def reward(bot, state, action):
 
 params = lib.QParameters()
 params.pause_ms = 500
-params.actions = [QRobot.go_forward, QRobot.go_left, QRobot.go_right, QRobot.go_back]
-params.num_states = 4
+params.actions = [QRobot.go_forward, QRobot.go_left, QRobot.go_right, QRobot.go_back, QRobot.grab, QRobot.let_go]
+params.num_states = 6
 params.state_func = find_state
 params.reward_func = reward
 params.target_visits = 5
