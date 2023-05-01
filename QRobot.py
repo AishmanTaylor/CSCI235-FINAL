@@ -1,15 +1,17 @@
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
 from pybricks.parameters import Port, Stop, Direction, Button, Color
+import pybricks.nxtdevices
 
 class SensorMotor:
     def __init__(self, ev3):
         self.ev3 = ev3
         self.left = Motor(Port.A)
         self.right = Motor(Port.D)
-        # self.bump_left = TouchSensor(Port.S1)
-        # self.bump_right = TouchSensor(Port.S4)
-        self.sonar = UltrasonicSensor(Port.S2)
+        self.claw = Motor(Port.C)
+        self.left_sonar = pybricks.nxtdevices.UltrasonicSensor(Port.S4)
+        self.right_sonar = pybricks.nxtdevices.UltrasonicSensor(Port.S3)
+        self.light = ColorSensor(Port.S2)
         self.loops = 0
 
     def stop_all(self):
@@ -50,3 +52,13 @@ def go_back(robot):
 def stop(robot):
     robot.left.run(0)
     robot.right.run(0)
+
+def grab(robot):
+    distance_turned = robot.claw.angle()
+    if 0 <= distance_turned <= 90 or robot.light.color() != Color.BLACK:
+        robot.claw.run(SPEED)
+
+def let_go(robot):
+    distance_turned = robot.claw.angle()
+    if 0 >= distance_turned >= 90 or robot.light.color() != Color.BLACK:
+        robot.claw.run(-SPEED)

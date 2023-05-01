@@ -44,12 +44,19 @@ LABEL_CLEAR = 0
 LABEL_OBJECT = 1
 LABEL_PERSON = 2
 LABEL_OBSTACLE = 3
+TOO_FAR_RIGHT = 4
+TOO_FAR_LEFT = 5
 
 def find_state(bot):
-    distance = bot.sonar.distance()
+    distance_left = robot.left_sonar.distance()
+    distance_right = robot.right_sonar.distance()
     msg = send_message("classify")
-    if msg == "Label_Object":
+    if (msg == "Label_Object") and (distance_left < 50) and (distance_right <50):
         return LABEL_OBJECT
+    elif (distance_right < distance_left):
+        return TOO_FAR_RIGHT
+    elif (distance_left < distance_right):
+        return TOO_FAR_LEFT
     elif msg == "Label_Person":
         return LABEL_PERSON
     elif msg == "Label_Clear":
@@ -66,10 +73,12 @@ def find_state(bot):
 def reward(bot, state, action):
     if state == LABEL_OBJECT:
         return 10
-    elif state == LABEL_CLEAR:
+    elif state == LABEL_PERSON:
         return 15
     elif state == LABEL_OBSTACLE:
         return -5
+    elif state == LABEL_CLEAR:
+        return 1
     elif action == 0:
         return 1
     else:
